@@ -27,24 +27,32 @@ EDGraphicMod::EDGraphicMod()
   case 0 :
     cout<<"G4SBS Data root"<<endl;
     ReadOut-> SBSRoot();
+    Entries = ReadOut-> mTPCTree->GetEntries();
     break; //optional
   case 1 :
     cout<<"Digitized Data root"<<endl;
     ReadOut-> DigiRoot();
+    Entries = ReadOut-> mTPCTree->GetEntries();
     break; //optional
+  case 2 :
+    cout<<"Aruni/Steve Data"<<endl;
+    ReadOut-> AruniData();
+    break; //optional
+    
   default :
     ReadOut-> SBSRoot();
+    break; //optional
   }
     
     
-
-  Int_t Entries = ReadOut-> mTPCTree->GetEntries();
    
-  cout<<"Entries: "<<Entries<<endl;
+  //  cout<<"Entries: "<<Entries<<endl;
 
   cGraph = new TCanvas("cGraph","Graph2D example",0,0,600,1200); 
   cGraphXY = new TCanvas("cGraphXY","GraphXY example",0,0,1000,1200); 
 
+  
+  
 }
 
 EDGraphicMod::~EDGraphicMod()
@@ -55,17 +63,33 @@ EDGraphicMod::~EDGraphicMod()
 
 void EDGraphicMod::InitialProcess()
 {
+
+  
   vector< TGraph2D* > vGraph;// a vector of graphs
        
   Int_t numeve = Variable -> numevents;
-    
-  for (int neve = 0; neve < numeve; neve++)
+
+ 
+  
+  if(Variable->data2analyze <=1)
     {
-      DataFill(neve);
-      x_vec.push_back(xv);
-      y_vec.push_back(yv);
-      z_vec.push_back(zv);
+      for (int neve = 0; neve < numeve; neve++)
+	{
+	  DataFillRoot(neve);
+	  x_vec.push_back(xv);
+	  y_vec.push_back(yv);
+	  z_vec.push_back(zv);
+	}
     }
+  else
+    {
+   
+	  DataFillAruni();
+	  x_vec.push_back(xv);
+	  y_vec.push_back(yv);
+	  z_vec.push_back(zv);
+    }
+
   
   cGraph->cd();
   graph2dfile(x_vec, y_vec, z_vec);
@@ -104,7 +128,8 @@ void EDGraphicMod::graph2dfile(vector<vector<Double_t> > &vX,vector<vector<Doubl
       vGraph[0] -> SetMarkerStyle(20);
       vGraph[0] -> SetMarkerSize(.9);
       vGraph[0] -> SetMarkerColor(color_wh[0]);
-      vGraph[0] -> Draw("PLINE same");
+      //      vGraph[0] -> Draw("PLINE same");
+      vGraph[0] -> Draw("P same");
     }
   else
     {
@@ -116,7 +141,8 @@ void EDGraphicMod::graph2dfile(vector<vector<Double_t> > &vX,vector<vector<Doubl
 	  vGraph[kk] -> SetMarkerStyle(20);
 	  vGraph[kk] -> SetMarkerSize(.9);
 	  vGraph[kk] -> SetMarkerColor(color_wh[kk%27]);
-	  vGraph[kk] -> Draw("PLINE same");
+	  //	  vGraph[kk] -> Draw("PLINE same");
+	  vGraph[kk] -> Draw("P same");
 	}
     }
   cGraph->Modified();
@@ -137,7 +163,7 @@ void EDGraphicMod::graphXY(vector<vector<Double_t> > &vX,vector<vector<Double_t>
   vector< TGraph* > vGraph;// a vector of graphs
   
   Int_t RealNoG =0;
-  
+      
   for(int idx = 0; idx< NoG; idx++)
     {
       if(vX[idx].size()>0) //This line avoids 0's which could cause errors constructing the TGraph
@@ -155,7 +181,7 @@ void EDGraphicMod::graphXY(vector<vector<Double_t> > &vX,vector<vector<Double_t>
       vGraph[0] -> SetMarkerStyle(20);
       vGraph[0] -> SetMarkerSize(.9);
       vGraph[0] -> SetMarkerColor(color_wh[0]);
-      vGraph[0] -> Draw("PLINE same");
+      vGraph[0] -> Draw("P same");
     }
   else
     {
@@ -340,7 +366,9 @@ void EDGraphicMod::Draw3DCircles()
 }
 
 
-void EDGraphicMod::DataFill(Int_t TreeEntry)
+
+
+void EDGraphicMod::DataFillRoot(Int_t TreeEntry)
 {
   xv.clear();
   yv.clear();
@@ -371,5 +399,35 @@ void EDGraphicMod::DataFill(Int_t TreeEntry)
   return;
 
 }
+
+void EDGraphicMod::DataFillAruni()
+{
+  xv.clear();
+  yv.clear();
+  zv.clear();
+
+
+  nHits = ReadOut -> vx.size();
+
+  for(int j=0; j<nHits; j++)
+    {
+      if(Variable->verbose == 1)
+	{
+	  cout<< " x: " <<ReadOut -> vx.at(j)
+	      << " y: " <<ReadOut -> vy.at(j)
+	      << " z: " <<ReadOut -> vz.at(j) << endl;
+	}
+      xv.push_back(ReadOut -> vx.at(j)/100.);// units in m
+      yv.push_back(ReadOut -> vy.at(j)/100.);
+      zv.push_back(ReadOut -> vz.at(j)/100.);
+      
+  
+    }
+  
+  return;
+
+}
+
+
 
 EDGraphicMod *GraphModule = NULL;

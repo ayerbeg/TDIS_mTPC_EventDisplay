@@ -44,7 +44,8 @@ void EDVariable::LoadFromFile(TString FileName)
 	       	  ss >> data2analyze;
 		  //0 = SBS data. 1= Rachel digidata. 
 	       	  if ( data2analyze != 0 &&
-		       data2analyze != 1 )
+		       data2analyze != 1 &&
+		       data2analyze != 2 )
 		    {
 		      cout<<"**************************************"<<endl;
 		      cout<<"            Rootdata                  "<<endl;

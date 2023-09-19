@@ -22,7 +22,11 @@ public:
 
   void SBSRoot();
   void DigiRoot();
+  void AruniData();
 
+
+  TString fileName;
+  
   TFile *file; 
   TTree *mTPCTree;
 
@@ -48,8 +52,14 @@ public:
   // std::vector<vector<Double_t> > x_vec ;
   // std::vector<vector<Double_t> > y_vec ;
   // std::vector<vector<Double_t> > z_vec ;
-
-
+  string line;
+  string it1, it2, it3;
+  
+  double dx, dy, dz;
+  
+  vector<double> vx;
+  vector<double> vy;
+  vector<double> vz;
 };
 
 extern EDReadOut *ReadOut;

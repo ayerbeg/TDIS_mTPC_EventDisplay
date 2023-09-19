@@ -9,11 +9,11 @@ EDReadOut::EDReadOut()
 {
   cout << "<EDReadOut::EDReadOut>: Initializing." << endl;
 
-  TString fileName = Variable->inputfile; // could be simplified
+  fileName = Variable->inputfile; // could be simplified
 
   cout<<"inputfile: "<< Variable -> inputfile<<endl;
 
-  file = new TFile(fileName,"READ"); 
+ 
 
 }
 
@@ -27,6 +27,8 @@ EDReadOut::~EDReadOut()
 void EDReadOut::SBSRoot()
 {
 
+
+  file = new TFile(fileName,"READ"); 
   mTPCTree = (TTree*)file->Get("T"); 
   if(!mTPCTree) return;
 
@@ -50,6 +52,7 @@ void EDReadOut::SBSRoot()
 void EDReadOut::DigiRoot()
 {
 
+  file = new TFile(fileName,"READ"); 
   mTPCTree = (TTree*)file->Get("mTPCdigi"); 
   if(!mTPCTree) return;
 
@@ -59,6 +62,42 @@ void EDReadOut::DigiRoot()
   mTPCTree -> SetBranchAddress("v_XHitPos", &xHits, &b_xHits);
   mTPCTree -> SetBranchAddress("v_YHitPos", &yHits, &b_yHits);
   mTPCTree -> SetBranchAddress("v_ZHitPos", &zHits, &b_zHits);
+
+}
+
+
+void EDReadOut::AruniData()
+{
+  ifstream  ReadFile(fileName);
+  
+  if (ReadFile) // it controls that the file exists
+    {
+      while (!ReadFile.eof()) // loop until the end of the file (eof)
+	{
+	  while ( getline( ReadFile, line )) // take a full line from the file
+	    {
+	      	  stringstream ss( line );      // Set up up a stream from this line
+
+		  // I read 11 columns since this is the data from Murchana (rc-externals)
+		  // probably, I don't need to read beyond 7, except if I want to make use
+		  // of a different cross-section
+		  ss >> it1 >> it2 >> it3; //
+
+
+		  if (it1 == "hitxyz") continue; 
+
+
+		  dx = stod(it1);
+		  dy = stod(it2);
+		  dz = stod(it3);
+
+		  vx.push_back(dx);
+		  vy.push_back(dy);
+		  vz.push_back(dz);
+		  		  
+	    }
+	}
+    }
 
 }
 

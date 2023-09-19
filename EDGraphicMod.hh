@@ -35,12 +35,13 @@ public:
   void Draw3DCircles();
   void DrawFrame();
   void DrawCircles();
-  void DataFill(Int_t);
+  void DataFillRoot(Int_t);
+  void DataFillAruni();
   void graph2dfile(vector<vector<Double_t> > &vX,vector<vector<Double_t> > &vY, vector<vector<Double_t> > &vZ );
   void graphXY(vector<vector<Double_t> > &vX,vector<vector<Double_t> > &vY);
   void animatedXY(vector<vector<Double_t> > &vX, vector<vector<Double_t> > &vY);
 
-
+  Int_t Entries;
   TCanvas *cGraph;
   TCanvas *cGraphXY;
   

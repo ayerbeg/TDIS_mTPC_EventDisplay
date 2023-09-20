@@ -38,7 +38,12 @@ EDGraphicMod::EDGraphicMod()
     cout<<"Aruni/Steve Data"<<endl;
     ReadOut-> AruniData();
     break; //optional
-    
+  case 3 :
+    cout<<"Aruni/Steve Root Data"<<endl;
+    ReadOut-> AruniDataRoot();
+    Entries = ReadOut-> mTPCTree->GetEntries();
+    break; //optional
+
   default :
     ReadOut-> SBSRoot();
     break; //optional
@@ -69,28 +74,32 @@ void EDGraphicMod::InitialProcess()
        
   Int_t numeve = Variable -> numevents;
 
- 
   
-  if(Variable->data2analyze <=1)
+  if(Variable->data2analyze <= 1 ||
+     Variable->data2analyze == 3 )
     {
+      if(Entries < numeve) numeve = Entries;
+
       for (int neve = 0; neve < numeve; neve++)
 	{
 	  DataFillRoot(neve);
-	  x_vec.push_back(xv);
-	  y_vec.push_back(yv);
-	  z_vec.push_back(zv);
+	  if(xv.size()!=0)
+	    {
+	      x_vec.push_back(xv);
+	      y_vec.push_back(yv);
+	      z_vec.push_back(zv);
+	    }
 	}
     }
   else
     {
-   
-	  DataFillAruni();
-	  x_vec.push_back(xv);
-	  y_vec.push_back(yv);
-	  z_vec.push_back(zv);
+      DataFillAruni();
+      x_vec.push_back(xv);
+      y_vec.push_back(yv);
+      z_vec.push_back(zv);
     }
 
-  
+      
   cGraph->cd();
   graph2dfile(x_vec, y_vec, z_vec);
 
@@ -104,9 +113,13 @@ void EDGraphicMod::graph2dfile(vector<vector<Double_t> > &vX,vector<vector<Doubl
 {
   Draw3DFrame();
   Draw3DCircles();
+
+
+
   
   Int_t NoG = vX.size();//number of graphs
-
+    
+  cout<< vX[0].size()<<endl;
   vector< TGraph2D* > vGraph;// a vector of graphs
 
   Int_t RealNoG =0;
@@ -119,10 +132,11 @@ void EDGraphicMod::graph2dfile(vector<vector<Double_t> > &vX,vector<vector<Doubl
 	  RealNoG++;
 	}
     }
+
   
   if(NoG == 1)
     {
-      //      cout<<"ONE GRAPH"<<endl;
+     //      cout<<"ONE GRAPH"<<endl;
       vGraph[0] -> SetLineColor(color_wh[0]);
       vGraph[0] -> SetLineWidth(4);
       vGraph[0] -> SetMarkerStyle(20);
@@ -374,28 +388,38 @@ void EDGraphicMod::DataFillRoot(Int_t TreeEntry)
   yv.clear();
   zv.clear();
 
-  cout<<"Entry: "<< TreeEntry << endl;
-  
+  //  cout<<"Entry: "<< TreeEntry << endl;
+
   ReadOut -> mTPCTree -> GetEntry(TreeEntry);
+
   nHits = ReadOut -> xHits->size();
 
-
-  
-  for(int j=0; j<nHits; j++)
+  if(nHits != 0) 
     {
-      if(Variable->verbose == 1)
+      for(int j=0; j<nHits; j++)
 	{
-	  cout<< " x: " <<ReadOut -> xHits->at(j)
-	      << " y: " <<ReadOut -> yHits->at(j)
-	      << " z: " <<ReadOut -> zHits->at(j) << endl;
+	  if(Variable->verbose == 1)
+	    {
+	      cout<< " x: " <<ReadOut -> xHits->at(j)
+		  << " y: " <<ReadOut -> yHits->at(j)
+		  << " z: " <<ReadOut -> zHits->at(j) << endl;
+	    }
+
+	  if(  Variable->data2analyze !=3)
+	    {
+	      xv.push_back(ReadOut -> xHits->at(j));
+	      yv.push_back(ReadOut -> yHits->at(j));
+	      zv.push_back(ReadOut -> zHits->at(j));
+	    }
+	  else
+	    {
+	      xv.push_back(ReadOut -> xHits->at(j)/100.);// units in m
+	      yv.push_back(ReadOut -> yHits->at(j)/100.);
+	      zv.push_back(ReadOut -> zHits->at(j)/100.);
+	    }
 	}
-      xv.push_back(ReadOut -> xHits->at(j));
-      yv.push_back(ReadOut -> yHits->at(j));
-      zv.push_back(ReadOut -> zHits->at(j));
-      
-  
     }
-  
+
   return;
 
 }

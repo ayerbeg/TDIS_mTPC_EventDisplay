@@ -68,6 +68,7 @@ void EDReadOut::DigiRoot()
 
 void EDReadOut::AruniData()
 {
+
   ifstream  ReadFile(fileName);
   
   if (ReadFile) // it controls that the file exists
@@ -76,7 +77,7 @@ void EDReadOut::AruniData()
 	{
 	  while ( getline( ReadFile, line )) // take a full line from the file
 	    {
-	      	  stringstream ss( line );      // Set up up a stream from this line
+	      stringstream ss( line );      // Set up up a stream from this line
 
 		  // I read 11 columns since this is the data from Murchana (rc-externals)
 		  // probably, I don't need to read beyond 7, except if I want to make use
@@ -94,11 +95,23 @@ void EDReadOut::AruniData()
 		  vx.push_back(dx);
 		  vy.push_back(dy);
 		  vz.push_back(dz);
-		  		  
 	    }
 	}
     }
 
 }
 
+
+void EDReadOut::AruniDataRoot()
+{
+  file = new TFile(fileName,"READ"); 
+  mTPCTree = (TTree*)file->Get("mTPCdigi"); 
+  if(!mTPCTree) return;
+
+  mTPCTree -> SetBranchAddress("v_X", &xHits, &v_X);
+  mTPCTree -> SetBranchAddress("v_Y", &yHits, &v_Y);
+  mTPCTree -> SetBranchAddress("v_Z", &zHits, &v_Z);
+
+
+}
 EDReadOut *ReadOut=NULL;

@@ -23,7 +23,7 @@ public:
   void SBSRoot();
   void DigiRoot();
   void AruniData();
-
+  void AruniDataRoot();
 
   TString fileName;
   
@@ -60,6 +60,10 @@ public:
   vector<double> vx;
   vector<double> vy;
   vector<double> vz;
+
+  TBranch *v_X;
+  TBranch *v_Y;
+  TBranch *v_Z; 
 };
 
 extern EDReadOut *ReadOut;
